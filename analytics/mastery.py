@@ -5,12 +5,14 @@ import math
 # Calculate the mastery score for each topic
 def topic_mastery(attempts):
 
+    # Collecting all related attempts for each topic
     topic_data = defaultdict(list)
 
     for title,difficulty,topics,date,time,conf,success in attempts:
         for topic in topics.split(","):
             topic_data[topic].append((time,success,date))
 
+    # Calculating mastery score
     mastery = {}
 
     for topic,entries in topic_data.items():
@@ -23,6 +25,7 @@ def topic_mastery(attempts):
         days = (datetime.now()-datetime.fromisoformat(last_date)).days
         recency = math.exp(-days/14)
 
+        # Proportions are a bit arbitrary
         mastery[topic] = 0.4*success_rate + 0.3*speed_score + 0.3*recency
 
     return mastery
