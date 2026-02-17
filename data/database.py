@@ -1,6 +1,6 @@
 import sqlite3
 
-DB_NAME = "leetcode.db"
+from constants import DB_NAME
 
 def get_conn():
     return sqlite3.connect(DB_NAME)
