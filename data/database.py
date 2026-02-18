@@ -9,15 +9,17 @@ def init_db():
     conn = get_conn()
     cur = conn.cursor()
 
+    # Problems database storing LeetCode problems metadata
     cur.execute("""
     CREATE TABLE IF NOT EXISTS problems(
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id INTEGER PRIMARY KEY,
         title TEXT,
         difficulty TEXT,
         topics TEXT
     )
     """)
 
+    # Attempts database storing each problem attempt's metadata
     cur.execute("""
     CREATE TABLE IF NOT EXISTS attempts(
         id INTEGER PRIMARY KEY AUTOINCREMENT,

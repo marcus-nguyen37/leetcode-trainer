@@ -5,12 +5,12 @@ This module provides a single entry point for fetching problem metadata from Lee
 For now, it returns None to indicate a problem does not exist (or stub data for testing).
 """
 
-def fetch_problem_from_leetcode(problem_identifier):
+def fetch_problem_from_api(problem_id):
     """
     Fetch LeetCode problem metadata from the API.
     
     Args:
-        problem_identifier (str): The problem identifier (e.g., title, slug, or ID).
+        problem_id (int): The problem identifier (e.g., title, slug, or ID).
     
     Returns:
         dict: A dictionary with keys 'title', 'difficulty', 'topics' if the problem is found.
