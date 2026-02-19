@@ -1,5 +1,5 @@
 from .database import get_conn
-from .leetcode_api import fetch_problem_from_api
+from .api import fetch_problem_from_api
 
 # TODO: Maybe edit this function to get only slug, and call from API. This way, there's validation + less user work
 def add_problem(problem_id: int, slug: str, title: str, difficulty: str, topics: list[str]):
