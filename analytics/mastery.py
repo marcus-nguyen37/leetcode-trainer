@@ -3,15 +3,20 @@ from datetime import datetime, timedelta
 import math
 from statistics import mean
 
-from data.models import get_attempts
-from constants import RECENCY_DECAY,MASTERY_SUCCESS_PROP, MASTERY_SPEED_PROP, MASTERY_RECENCY_PROP, MASTERY_CONF_PROP, EXPECTED_TIMES, MASTERY_DAYS_WINDOW
+from data.database_access import get_attempts
+from constants import (
+    RECENCY_DECAY, MASTERY_SUCCESS_PROP,
+    MASTERY_SPEED_PROP, MASTERY_RECENCY_PROP,
+    MASTERY_CONF_PROP, EXPECTED_TIMES,
+    MASTERY_DAYS_WINDOW
+    )
 
 def parse_date(date_str: str) -> datetime:
     return datetime.strptime(date_str, "%Y-%m-%d")
 
 
-def recency_score(last_date: datetime) -> float:
-    days = (datetime.now() - last_date).days
+def recency_score(last_date: datetime, now: datetime) -> float:
+    days = (now - last_date).days
     return math.exp(-days / RECENCY_DECAY)
 
 
@@ -29,7 +34,9 @@ def calculate_mastery() -> dict[str, float]:
     """
 
     attempts = get_attempts()
-    cutoff = datetime.now() - timedelta(days=MASTERY_DAYS_WINDOW)
+
+    now = datetime.now()
+    cutoff = now - timedelta(days=MASTERY_DAYS_WINDOW)
 
     topic_data = defaultdict(list)
 
@@ -60,7 +67,7 @@ def calculate_mastery() -> dict[str, float]:
         conf_score = avg_conf / 5 # Dividing by 5 normalises confidence score
 
         last_date = max(r[1] for r in rows)
-        recency = recency_score(last_date)
+        recency = recency_score(last_date, now)
 
         speed_vals = [speed_score(r[2], r[0]) for r in rows]
         avg_speed = mean(speed_vals)

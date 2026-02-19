@@ -22,3 +22,9 @@ MASTERY_DAYS_WINDOW = 60
 
 # Expected time of completion for a problem. Used as a baseline to judge whether completion time was good
 EXPECTED_TIMES = {"Easy": 10, "Medium": 25, "Hard": 45}
+
+# Minimum num. of attempts required to have topic be recommended.
+MIN_ATTEMPT_RECC_THRESHOLD = 1
+
+# Number of topics to be recommended at a time.
+NUM_RECC = 3
