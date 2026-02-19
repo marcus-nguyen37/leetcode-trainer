@@ -1,3 +1,7 @@
+import requests
+
+from constants import LEETCODE_GRAPHQL_URL
+
 """
 (For now) stub module for LeetCode API interactions.
 
@@ -5,37 +9,68 @@ This module provides a single entry point for fetching problem metadata from Lee
 For now, it returns None to indicate a problem does not exist (or stub data for testing).
 """
 
-def fetch_problem_from_api(problem_id):
+def fetch_problem_from_api(slug: str) -> dict[str, int | str | list[str]] | None:
     """
-    Fetch LeetCode problem metadata from the API.
+    Fetch LeetCode problem metadata from GraphQL endpoint user problem's slug.
     
     Args:
-        problem_id (int): The problem identifier (e.g., title, slug, or ID).
+        slug (text): The problem's slug.
+            Ex. "two-sum"
     
     Returns:
-        dict: A dictionary with keys 'title', 'difficulty', 'topics' if the problem is found.
+        dict: Dictionary {"id": int, "title": str, "difficulty": str, "topics": list[str]} if the problem is found.
               Example: {
-                  'title': 'Two Sum',
-                  'difficulty': 'Easy',
-                  'topics': ['Array', 'Hash Table']
+                  "id": 1,
+                  "title": "Two Sum",
+                  "difficulty": "Easy",
+                  "topics": ["Array", "Hash Table"]
               }
-        None: If the problem does not exist or the API call fails.
-    
-    Notes:
-        - This is a stub function for now, always returning None
-        - Later, implement actual API logic here.
+        None: If the problem does not exist or the API call fails in any way.
     """
-    # TODO: Implement actual API call here
-    # Example placeholder:
-    # try:
-    #     response = requests.get(f"https://leetcode.com/api/problems/{problem_identifier}")
-    #     data = response.json()
-    #     return {
-    #         'title': data['title'],
-    #         'difficulty': data['difficulty'],
-    #         'topics': data['topics']
-    #     }
-    # except:
-    #     return None
+
+    query = """
+    query getQuestion($titleSlug: String!) {
+      question(titleSlug: $titleSlug) {
+        questionFrontendId
+        title
+        difficulty
+        topicTags {
+          name
+        }
+      }
+    }
+    """
+
+    variables = {"titleSlug": slug}
+
+    response = requests.post(
+        LEETCODE_GRAPHQL_URL,
+        json={"query": query, "variables": variables},
+        headers={
+            "Content-Type": "application/json",
+            "Referer": "https://leetcode.com"
+        }
+    )
+
+    # Response didn't work properly
+    if response.status_code != 200:
+        return None
     
-    return None  # Stub: always return None for now
+    data = response.json()
+
+    # Error in data fetching
+    if "errors" in data:
+        return None
+    
+    q = data["data"]["question"]
+
+    # If null LeetCode problem
+    if q is None:
+        return None
+    
+    return {
+        "id": int(q["questionFrontendId"]),
+        "title": q["title"],
+        "difficulty": q["difficulty"],
+        "topics": [t["name"] for t in q["topicTags"]]
+    }

@@ -13,6 +13,7 @@ def init_db():
     cur.execute("""
     CREATE TABLE IF NOT EXISTS problems(
         id INTEGER PRIMARY KEY,
+        slug TEXT UNIQUE,
         title TEXT,
         difficulty TEXT,
         topics TEXT
@@ -23,19 +24,11 @@ def init_db():
     cur.execute("""
     CREATE TABLE IF NOT EXISTS attempts(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        problem_id INTEGER,
+        slug str UNIQUE,
         date TEXT,
         time_taken INTEGER,
         confidence INTEGER,
         success INTEGER
-    )
-    """)
-
-    cur.execute("""
-    CREATE TABLE IF NOT EXISTS reviews(
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        attempt_id INTEGER,
-        review_date TEXT
     )
     """)
 

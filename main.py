@@ -10,27 +10,28 @@ init_db()
 cmd = sys.argv[1]
 
 # "add_problem" command adds a LeetCode problem (not an attempt) to the database
-# Usage: python main.py add_problem <problem_id> <title> <difficulty> <topic1,topic2,...>
+# Usage: python main.py add_problem <problem_id> <slug> <title> <difficulty> <topic1,topic2,...>
 if cmd == "add_problem":
     # Parsing arguments
     # TO-DO: add validation
     problem_id = int(sys.argv[2])
-    title = sys.argv[3]
-    difficulty = sys.argv[4]
-    topics = sys.argv[5].split(",")
-    add_problem(problem_id, title, difficulty, topics)
+    slug = sys.argv[3]
+    title = sys.argv[4]
+    difficulty = sys.argv[5]
+    topics = sys.argv[6].split(",")
+    add_problem(problem_id, slug, title, difficulty, topics)
     print(f"Added problem: {problem_id} - {title}")
 
 # "log" adds an LeetCode attempt using cache-aside pattern
 elif cmd == "log":
-    # Usage: python main.py log <problem_id> "YYYY-MM-DD" <time_min> <confidence> <0|1>
-    problem_id = int(sys.argv[2])
+    # Usage: python main.py log <slug> "YYYY-MM-DD" <time_min> <confidence> <0|1>
+    slug = sys.argv[2]
     date = sys.argv[3]
     time_taken = int(sys.argv[4])
     confidence = int(sys.argv[5])
     success = sys.argv[6] == "1"
     
-    result = log_attempt(problem_id, date, time_taken, confidence, success)
+    result = log_attempt(slug, date, time_taken, confidence, success)
     
     if result["success"]:
         print(f"Attempt logged (ID: {result["attempt_id"]})")
