@@ -2,24 +2,17 @@ import requests
 
 from constants import LEETCODE_GRAPHQL_URL
 
-"""
-(For now) stub module for LeetCode API interactions.
-
-This module provides a single entry point for fetching problem metadata from LeetCode.
-For now, it returns None to indicate a problem does not exist (or stub data for testing).
-"""
-
 def fetch_problem_from_api(slug: str) -> dict[str, int | str | list[str]] | None:
     """
     Fetch LeetCode problem metadata from GraphQL endpoint user problem's slug.
     
     Args:
-        slug (text): The problem's slug.
+        slug (text): The problem's title slug.
             Ex. "two-sum"
     
     Returns:
         dict: Dictionary {"id": int, "title": str, "difficulty": str, "topics": list[str]} if the problem is found.
-              Example: {
+              Ex. {
                   "id": 1,
                   "title": "Two Sum",
                   "difficulty": "Easy",
