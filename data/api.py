@@ -49,7 +49,8 @@ def fetch_problem_from_api(slug: str) -> dict[str, int | str | list[str]] | None
         headers={
             "Content-Type": "application/json",
             "Referer": "https://leetcode.com"
-        }
+        },
+        timeout=10
     )
 
     # Response didn't work properly

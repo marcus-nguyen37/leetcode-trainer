@@ -3,7 +3,9 @@ import sqlite3
 from constants import DB_NAME
 
 def get_conn():
-    return sqlite3.connect(DB_NAME)
+    conn = sqlite3.connect(DB_NAME)
+    conn.execute("PRAGMA foreign_keys = ON")
+    return conn
 
 def init_db():
     conn = get_conn()
@@ -24,11 +26,12 @@ def init_db():
     cur.execute("""
     CREATE TABLE IF NOT EXISTS attempts(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        slug str UNIQUE,
+        problem_id INTEGER,
         date TEXT,
         time_taken INTEGER,
         confidence INTEGER,
-        success INTEGER
+        success INTEGER,
+        FOREIGN KEY(problem_id) REFERENCES problems(id)
     )
     """)
 

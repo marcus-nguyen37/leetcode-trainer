@@ -29,7 +29,7 @@ elif cmd == "log":
     date = sys.argv[3]
     time_taken = int(sys.argv[4])
     confidence = int(sys.argv[5])
-    success = sys.argv[6] == "1"
+    success = int(sys.argv[6] == "1")
     
     result = log_attempt(slug, date, time_taken, confidence, success)
     

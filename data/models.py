@@ -26,13 +26,12 @@ def add_problem(problem_id: int, slug: str, title: str, difficulty: str, topics:
     
     # Inserting problem into problem database using problem_id as id
     cur.execute(
-        "INSERT INTO problems(id,slug,title,difficulty,topics) VALUES(?,?,?,?,?)",
+        "INSERT OR IGNORE INTO problems(id,slug,title,difficulty,topics) VALUES(?,?,?,?,?)",
         (problem_id, slug, title, difficulty, topics_str)
     )
 
     conn.commit()
     conn.close()
-
 
 def get_problem_by_slug(slug: str):
     """
@@ -62,6 +61,35 @@ def get_problem_by_slug(slug: str):
     
     return row
 
+def get_or_create_problem(slug: str) -> int | None:
+    """
+    Returns problem_id. Fetches from API and inserts into problems database if missing.
+
+    Returns:
+        None: If problem cannot be found.
+    """
+
+    row = get_problem_by_slug(slug)
+
+    if row:
+        return row[0]
+
+    # Not cached, fetch from API
+    data = fetch_problem_from_api(slug)
+    if not data:
+        return None
+
+    problem_id = data.get("id")
+    title = data.get("title")
+    difficulty = data.get("difficulty")
+    topics = data.get("topics")
+
+    if None in (problem_id, title, difficulty, topics):
+        return None
+
+    add_problem(problem_id, slug, title, difficulty, topics)
+
+    return problem_id
 
 def log_attempt(slug: str, date: str, time_taken: int, confidence: int, success: int):
     """
@@ -92,38 +120,17 @@ def log_attempt(slug: str, date: str, time_taken: int, confidence: int, success:
         return {"success": False, "error": "Confidence must be between 1 and 5, inclusive."}
     if time_taken < 0:
         return {"success": False, "error": "Time taken cannot be negative."}
-    if success not in ["0", "1"]:
+    if success not in (0, 1):
         return {"success": False, "error": "Success must either be 0 (Fail) or 1 (Pass)."}
         
     # Attempting to get problem from local database
-    problem_row = get_problem_by_slug(slug)
-    
-    if problem_row is None:
-        # Problem not in local database, attempt to fetch from API
-        problem_data = fetch_problem_from_api(slug)
-        
-        if problem_data is None:
-            # API failed or problem does not exist on LeetCode
-            return {
-                "success": False,
-                "error": f'Problem with slug "{slug}" not found in database or LeetCode.'
-            }
-        
-        else:
-            # Problem successfully found. Cache the problem to problems database
-            problem_id = problem_data.get("id")
-            title = problem_data.get("title")
-            difficulty = problem_data.get("difficulty")
-            topics = problem_data.get("topics")
+    problem_id = get_or_create_problem(slug)
 
-            if None in (problem_id, title, difficulty, topics):
-                return {
-                    "success": False,
-                    "error": "Incomplete data returned from API when adding problem to database."
-                }
-            
-            # Insert the new problem into the database
-            add_problem(problem_id, slug, title, difficulty, topics)
+    if problem_id is None:
+        return {
+            "success": False,
+            "error": f'Problem with slug "{slug}" not found in database or LeetCode.'
+        }
 
     # Found / successfully fetched and added problem. Inserting attempt record
     try:
@@ -132,10 +139,10 @@ def log_attempt(slug: str, date: str, time_taken: int, confidence: int, success:
 
         cur.execute(
             """
-            INSERT INTO attempts(slug, date, time_taken, confidence, success)
+            INSERT INTO attempts(problem_id, date, time_taken, confidence, success)
             VALUES (?, ?, ?, ?, ?)
             """,
-            (slug, date, time_taken, confidence, int(success))
+            (problem_id, date, time_taken, confidence, int(success))
         )
 
         attempt_id = cur.lastrowid
@@ -154,7 +161,6 @@ def log_attempt(slug: str, date: str, time_taken: int, confidence: int, success:
         "success": True,
         "attempt_id": attempt_id
     }
-
 
 def get_attempts() -> list[tuple]:
     """
@@ -188,7 +194,7 @@ def get_attempts() -> list[tuple]:
         """
         SELECT p.slug, p.difficulty, p.topics, a.date, a.time_taken, a.confidence, a.success
         FROM attempts a
-        JOIN problems p ON a.slug = p.slug
+        JOIN problems p ON a.problem_id = p.id
         """
     )
     
