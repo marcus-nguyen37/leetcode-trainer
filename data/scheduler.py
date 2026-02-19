@@ -3,7 +3,6 @@ from .database import get_conn
 
 from constants import CONF_REVIEW_DAYS
 
-
 def next_review_days(confidence: int, success: int) -> int:
     """
     Determines how many days until next review based on confidence.
@@ -107,3 +106,36 @@ def print_due_reviews():
         print(f"- {slug}")
 
 
+def get_review_schedule(problem_id: int | None = None) -> dict[int, str] | str | None:
+    """
+    Get the review schedule for problems.
+    
+    Args:
+        problem_id (int | None): If provided, returns the review date string for that problem.
+                                 If None, returns dict of all scheduled reviews.
+    
+    Returns:
+        str: Review date for a specific problem (if problem_id provided)
+        dict[int, str]: Mapping of problem_id to review_date (if no problem_id provided)
+        None: If problem has no scheduled review
+    """
+    conn = get_conn()
+    cur = conn.cursor()
+    
+    if problem_id is not None:
+        # Get review date for specific problem
+        cur.execute(
+            "SELECT review_date FROM reviews WHERE problem_id = ?",
+            (problem_id,)
+        )
+        row = cur.fetchone()
+        conn.close()
+        return row[0] if row else None
+    else:
+        # Get all scheduled reviews
+        cur.execute(
+            "SELECT problem_id, review_date FROM reviews ORDER BY review_date ASC"
+        )
+        rows = cur.fetchall()
+        conn.close()
+        return {r[0]: r[1] for r in rows} if rows else {}
