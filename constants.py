@@ -28,3 +28,6 @@ MIN_ATTEMPT_RECC_THRESHOLD = 1
 
 # Number of topics to be recommended at a time.
 NUM_RECC = 3
+
+# Days until review (val), for each confidence level (key). Note that failed attempt means revising tomorrow
+CONF_REVIEW_DAYS = {1: 2, 2: 2, 3: 5, 4: 7, 5: 10 }

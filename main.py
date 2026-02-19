@@ -1,9 +1,8 @@
 import sys
 from data.database import init_db
-from data.models import *
+from data.database_access import *
 from analytics.mastery import get_mastery
-from analytics.readiness import readiness_score
-from engine.recommender import recommend_topics
+from analytics.recommender import recommend_topics
 
 init_db()
 
@@ -13,7 +12,7 @@ cmd = sys.argv[1]
 # Usage: python main.py add_problem <problem_id> <slug> <title> <difficulty> <topic1,topic2,...>
 if cmd == "add_problem":
     # Parsing arguments
-    # TO-DO: add validation
+    # TODO: add validation
     problem_id = int(sys.argv[2])
     slug = sys.argv[3]
     title = sys.argv[4]
@@ -34,9 +33,9 @@ elif cmd == "log":
     result = log_attempt(slug, date, time_taken, confidence, success)
     
     if result["success"]:
-        print(f"Attempt logged (ID: {result["attempt_id"]})")
+        print(f"Attempt logged (ID: {result['attempt_id']})")
     else:
-        print(f"Error: {result["error"]}")
+        print(f"Error: {result['error']}")
 
 # "stats" displays the mastery score of each topic
 elif cmd == "stats":
@@ -57,11 +56,3 @@ elif cmd == "recommend":
     print("\nRecommended Topics:")
     for t,s in recs:
         print(t, round(s,3))
-
-# "readiness" shows the calc'd. interview readiness score
-elif cmd == "readiness":
-    attempts = get_attempts()
-    mastery = get_mastery(attempts)
-
-    score = readiness_score(mastery, attempts)
-    print("\nInterview Readiness:", round(score*100,1),"%")

@@ -11,7 +11,7 @@ def init_db():
     conn = get_conn()
     cur = conn.cursor()
 
-    # Problems database storing LeetCode problems metadata
+    # Problems table storing LeetCode problems metadata
     cur.execute("""
     CREATE TABLE IF NOT EXISTS problems(
         id INTEGER PRIMARY KEY,
@@ -22,7 +22,7 @@ def init_db():
     )
     """)
 
-    # Attempts database storing each problem attempt's metadata
+    # Attempts table storing each problem attempt's metadata
     cur.execute("""
     CREATE TABLE IF NOT EXISTS attempts(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -35,5 +35,16 @@ def init_db():
     )
     """)
 
+    # Reviews table storing problems that need to be reviewed (spaced repetition)
+    cur.execute("""
+    CREATE TABLE IF NOT EXISTS reviews(
+    problem_id INTEGER PRIMARY KEY,
+    review_date TEXT,
+    FOREIGN KEY(problem_id) REFERENCES problems(id)
+    )
+    """)
+
+
+    
     conn.commit()
     conn.close()

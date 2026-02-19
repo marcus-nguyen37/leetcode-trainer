@@ -1,5 +1,6 @@
 from .database import get_conn
 from .api import fetch_problem_from_api
+from .scheduler import schedule_review
 
 # TODO: Maybe edit this function to get only slug, and call from API. This way, there's validation + less user work
 def add_problem(problem_id: int, slug: str, title: str, difficulty: str, topics: list[str]):
@@ -156,6 +157,9 @@ def log_attempt(slug: str, date: str, time_taken: int, confidence: int, success:
 
     finally:
         conn.close()
+
+    # If attempt was successful, we also schedule a review date
+    schedule_review(problem_id, confidence, success)
 
     return {
         "success": True,
