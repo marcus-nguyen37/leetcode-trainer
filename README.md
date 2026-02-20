@@ -16,7 +16,7 @@ A (currently) command-line-interface dashboard for optimising your LeetCode prac
 
 1. **Clone the repository:**
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/marcus-nguyen37/leetcode-trainer.git
    cd leetcode-trainer
    ```
 
