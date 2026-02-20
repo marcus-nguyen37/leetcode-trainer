@@ -39,7 +39,7 @@ A (currently) command-line-interface dashboard for optimising your LeetCode prac
 Log a LeetCode problem attempt.
 
 **Arguments:**
-- `slug` - Problem slug from LeetCode URL (e.g., "two-sum", "add-two-numbers", "3sum")
+- `slug` - Problem slug from LeetCode URL (e.g., "two-sum", "add-two-numbers")
 - `date` - Attempt date in format `YYYY-MM-DD`
 - `time_min` - Time spent in minutes (integer)
 - `confidence` - Confidence level 1-5 (1=very unsure, 5=very confident)
